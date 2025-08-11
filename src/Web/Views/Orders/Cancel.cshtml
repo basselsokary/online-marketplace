@@ -1,0 +1,35 @@
+﻿@model Application.Features.Orders.Queries.GetById.ForCustomer.GetOrderByIdForCustomerQueryResponse
+
+@{
+    ViewBag.Title = "Cancel Order";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Cancel Order #@Model.Id</h2>
+            
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> This action cannot be undone. Please confirm you want to cancel this order.
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5>Order Summary</h5>
+                    <p><strong>Customer ID:</strong> @Model.CustomerId</p>
+                    <p><strong>Total Amount:</strong> @Model.TotalAmount.Amount.ToString("C")</p>
+                    <p><strong>Current Status:</strong> @Model.Status</p>
+                </div>
+            </div>
+
+            <form asp-action="Cancel">
+				<input type="hidden" asp-for="Id" />
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                    @Html.ActionLink("Back to Order", "Details", new { id = Model.Id }, new { @class = "btn btn-secondary" })
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,423 @@
+﻿@model List<Application.Features.Categories.Queries.Get.GetCategoriesQueryResponse>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-tags me-2"></i>
+                    Categories
+                    @if (Model?.Count > 0)
+                    {
+                        <span class="badge bg-primary ms-2">@Model.Count</span>
+                    }
+                </h2>
+                
+                <!-- Add Category Button (if user has permission) -->
+                @if(User.IsInRole(nameof(Domain.Enums.UserRole.Admin)))
+                {
+                <div>
+                    <a href="@Url.Action("Create", "Categories")" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>Add Category
+                    </a>
+                </div>
+                } 
+            </div>
+
+            <!-- Categories Table -->
+            @if (Model == null || !Model.Any())
+            {
+                <!-- Empty State -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Categories Found</h4>
+                                @if(User.IsInRole(nameof(Domain.Enums.UserRole.Admin)))
+                                {
+                                <p class="text-muted mb-4">Start by adding your first category to organize your products.</p>
+                                <a href="@Url.Action("Create", "Categories")" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create First Category
+                                </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Categories Table Card -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">All Categories</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Search Box -->
+                                <div class="input-group input-group-sm">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="searchInput" 
+                                           placeholder="Search categories...">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="categoriesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="sortable" data-column="name">
+                                        <i class="fas fa-tag me-2"></i>Name
+                                        <i class="fas fa-sort ms-1 sort-icon"></i>
+                                    </th>
+                                    <th scope="col" class="sortable" data-column="description">
+                                        <i class="fas fa-align-left me-2"></i>Description
+                                        <i class="fas fa-sort ms-1 sort-icon"></i>
+                                    </th>
+                                    @* <th scope="col" class="text-center">
+                                        <i class="fas fa-box me-2"></i>Products
+                                    </th> *@
+                                    <th scope="col" class="text-center" width="150">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(category.ImageUrl))
+                                                {
+                                                    <img src="@category.ImageUrl" 
+                                                         alt="@category.Name" 
+                                                         class="rounded me-3 category-image"
+                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-secondary rounded me-3 d-flex align-items-center justify-content-center category-placeholder"
+                                                         style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-tag text-white"></i>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <strong>@category.Name</strong>
+                                                    @* @if (category.IsActive == false)
+                                                    {
+                                                        <span class="badge bg-warning text-dark ms-2">Inactive</span>
+                                                    } *@
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(category.Description))
+                                            {
+                                                <span class="description-text">@category.Description</span>
+                                            }
+                                            else
+                                            {
+                                                <em class="text-muted">No description</em>
+                                            }
+                                        </td>
+                                        @* <td class="text-center">
+                                            @if (category.ProductCount.HasValue)
+                                            {
+                                                <span class="badge bg-info">@category.ProductCount products</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td> *@
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="@Url.Action("Edit", "Categories", new { id = category.Id })" 
+                                                   class="btn btn-sm btn-outline-secondary" 
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-danger delete-btn" 
+                                                        data-category-id="@category.Id"
+                                                        data-category-name="@category.Name"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Table Footer with Pagination Info -->
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Showing @Model.Count categories
+                            </small>
+                            <div>
+                                <!-- Pagination controls would go here if needed -->
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Click column headers to sort
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteCategoryModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Category
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the category <strong id="categoryNameToDelete"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-warning me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone. Products in this category may need to be reassigned.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>Delete Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            let categoryToDelete = null;
+            
+            // Search functionality
+            $('#searchInput').on('keyup', function() {
+                const searchTerm = $(this).val().toLowerCase();
+                
+                $('#categoriesTable tbody tr').each(function() {
+                    const categoryName = $(this).find('td:first-child strong').text().toLowerCase();
+                    const categoryDesc = $(this).find('.description-text').text().toLowerCase();
+                    
+                    if (categoryName.includes(searchTerm) || categoryDesc.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                
+                // Update results count
+                const visibleRows = $('#categoriesTable tbody tr:visible').length;
+                $('.card-footer small:first-child').text(`Showing ${visibleRows} categories`);
+            });
+            
+            // Table sorting
+            $('.sortable').click(function() {
+                const column = $(this).data('column');
+                const $table = $('#categoriesTable');
+                const $tbody = $table.find('tbody');
+                const $rows = $tbody.find('tr').toArray();
+                
+                // Determine sort direction
+                const isAscending = !$(this).hasClass('sort-asc');
+                
+                // Remove sort classes from all headers
+                $('.sortable').removeClass('sort-asc sort-desc');
+                $('.sort-icon').removeClass('fa-sort-up fa-sort-down').addClass('fa-sort');
+                
+                // Add sort class to current header
+                $(this).addClass(isAscending ? 'sort-asc' : 'sort-desc');
+                $(this).find('.sort-icon').removeClass('fa-sort')
+                    .addClass(isAscending ? 'fa-sort-up' : 'fa-sort-down');
+                
+                // Sort rows
+                $rows.sort(function(a, b) {
+                    let aValue, bValue;
+                    
+                    if (column === 'name') {
+                        aValue = $(a).find('td:first-child strong').text().trim();
+                        bValue = $(b).find('td:first-child strong').text().trim();
+                    } else if (column === 'description') {
+                        aValue = $(a).find('.description-text').text().trim();
+                        bValue = $(b).find('.description-text').text().trim();
+                    }
+                    
+                    if (aValue < bValue) return isAscending ? -1 : 1;
+                    if (aValue > bValue) return isAscending ? 1 : -1;
+                    return 0;
+                });
+                
+                // Append sorted rows
+                $.each($rows, function(index, row) {
+                    $tbody.append(row);
+                });
+            });
+            
+            // Delete category handler
+            $('.delete-btn').click(function() {
+                categoryToDelete = $(this).data('category-id');
+                const categoryName = $(this).data('category-name');
+                
+                $('#categoryNameToDelete').text(categoryName);
+                $('#deleteCategoryModal').modal('show');
+            });
+            
+            // Confirm delete
+            $('#confirmDeleteBtn').click(function() {
+                $('#deleteCategoryModal').modal('hide');
+                if (categoryToDelete) {
+                    deleteCategory(categoryToDelete);
+                }
+            });
+            
+            // AJAX delete function
+            function deleteCategory(categoryId) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "Categories")',
+                    type: 'POST',
+                    data: {
+                        id: categoryId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Remove row from table
+                            $(`.delete-btn[data-category-id="${categoryId}"]`).closest('tr').fadeOut(300, function() {
+                                $(this).remove();
+                                updateCategoryCount();
+                            });
+                            
+                            showAlert('Category deleted successfully', 'success');
+                        } else {
+                            showAlert('Error deleting category: ' + response.message, 'danger');
+                        }
+                    },
+                    error: function() {
+                        showAlert('Error deleting category. Please try again.', 'danger');
+                    }
+                });
+            }
+            
+            function updateCategoryCount() {
+                const count = $('#categoriesTable tbody tr').length;
+                $('.badge').text(count);
+                $('.card-footer small:first-child').text(`Showing ${count} categories`);
+                
+                // Show empty state if no categories left
+                if (count === 0) {
+                    location.reload();
+                }
+            }
+            
+            function showAlert(message, type) {
+                const alert = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                $('.container').prepend(alert);
+                
+                // Auto-dismiss after 3 seconds
+                setTimeout(function() {
+                    $('.alert').fadeOut();
+                }, 3000);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .category-image, .category-placeholder {
+            flex-shrink: 0;
+        }
+        
+        .description-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 300px;
+        }
+        
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .sortable:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .sort-icon {
+            opacity: 0.5;
+            transition: all 0.2s ease;
+        }
+        
+        .sortable:hover .sort-icon,
+        .sort-asc .sort-icon,
+        .sort-desc .sort-icon {
+            opacity: 1;
+        }
+        
+        .table > :not(caption) > * > * {
+            padding: 0.75rem;
+        }
+        
+        .btn-group .btn {
+            margin-right: 0;
+        }
+        
+        @@media (max-width: 768px) {
+            .card-header .row > div {
+                margin-bottom: 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                margin-bottom: 0.25rem;
+                border-radius: 0.375rem !important;
+            }
+        }
+        
+        .table-responsive {
+            border-radius: 0;
+        }
+        
+        .empty-state i {
+            opacity: 0.3;
+        }
+    </style>
+}

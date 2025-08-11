@@ -1,0 +1,602 @@
+﻿@using Domain.Enums;
+@model Web.Models.Carts.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-credit-card me-2"></i>Checkout
+            </h2>
+            
+            <!-- Progress Steps -->
+            <div class="checkout-progress mb-5">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="step completed">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Cart</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="step active">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Checkout</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Confirmation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <form asp-action="Checkout" asp-controller="Carts" method="post" id="checkoutForm">
+        <div class="row">
+            <!-- Left Column - Forms -->
+            <div class="col-lg-8">
+                
+                <!-- Shipping Address -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>Shipping Address
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Street" class="form-label">Street Address <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="Street" 
+                                       name="Address.Street" 
+                                       value="@Model?.Address?.Street" 
+                                       required>
+                                <span asp-validation-for="Address.Street" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="District" class="form-label">District <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="District" 
+                                       name="Address.District" 
+                                       value="@Model?.Address?.District">
+                                <span asp-validation-for="Address.District" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="City" class="form-label">City <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="City" 
+                                       name="Address.City" 
+                                       value="@Model?.Address?.City" 
+                                       required>
+                                <span asp-validation-for="Address.City" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ZipCode" class="form-label">Zip Code</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="ZipCode" 
+                                       name="Address.ZipCode" 
+                                       value="@Model?.Address?.ZipCode" >
+                                <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Save Address Checkbox -->
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="SaveAddress" 
+                                   name="SaveAddress" 
+                                   value="true">
+                            <label class="form-check-label" for="SaveAddress">
+                                Save this address for future orders
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>Payment Method
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var paymentMethod in Enum.GetValues<PaymentMethod>())
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check payment-method-option">
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="PaymentMethod" 
+                                               value="@((int)paymentMethod)" 
+                                               id="payment_@((int)paymentMethod)"
+                                               @(Model?.PaymentMethod == paymentMethod ? "checked" : "")
+                                               required>
+                                        <label class="form-check-label w-100" for="payment_@((int)paymentMethod)">
+                                            <div class="payment-option">
+                                                <div class="payment-icon">
+                                                    @switch (paymentMethod)
+                                                    {
+                                                        case PaymentMethod.CreditCard:
+                                                            <i class="fas fa-credit-card text-primary"></i>
+                                                            break;
+                                                        case PaymentMethod.PayPal:
+                                                            <i class="fab fa-paypal text-primary"></i>
+                                                            break;
+                                                        case PaymentMethod.BankTransfer:
+                                                            <i class="fas fa-university text-secondary"></i>
+                                                            break;
+                                                        case PaymentMethod.Cash:
+                                                            <i class="fas fa-money-bills text-success"></i>
+                                                            break;
+                                                        default:
+                                                            <i class="fas fa-credit-card"></i>
+                                                            break;
+                                                    }
+                                                </div>
+                                                <div class="payment-details">
+                                                    <strong>@paymentMethod.ToString().Replace("_", " ")</strong>
+                                                    <small class="text-muted d-block">
+                                                        @switch (paymentMethod)
+                                                        {
+                                                            case PaymentMethod.CreditCard:
+                                                                @("Visa, MasterCard, American Express")
+                                                                break;
+                                                            case PaymentMethod.PayPal:
+                                                                @("Pay with your PayPal account")
+                                                                break;
+                                                            case PaymentMethod.BankTransfer:
+                                                                @("Direct bank transfer")
+                                                                break;
+                                                            case PaymentMethod.Cash:
+                                                                @("Pay on delivery")
+                                                                break;
+                                                        }
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Payment Details (Dynamic based on selected method) -->
+                <div class="card shadow-sm mb-4" id="paymentDetailsCard" style="display: none;">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-lock me-2"></i>Payment Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Credit Card Details -->
+                        <div id="creditCardDetails" class="payment-details-section">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="CardNumber" class="form-label">Card Number <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="CardNumber" 
+                                           name="PaymentDetails.CardNumber" 
+                                           placeholder="1234 5678 9012 3456"
+                                           maxlength="19">
+                                    <span asp-validation-for="PaymentDetails.CardNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="CardHolder" class="form-label">Cardholder Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="CardHolder" 
+                                           name="PaymentDetails.CardHolderName" 
+                                           placeholder="John Doe">
+                                    <span asp-validation-for="PaymentDetails.CardHolderName" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="ExpiryDate" class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="ExpiryDate" 
+                                           name="PaymentDetails.ExpiryDate" 
+                                           placeholder="MM/YY"
+                                           maxlength="5">
+                                    <span asp-validation-for="PaymentDetails.ExpiryDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="CVV" class="form-label">CVV <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="CVV" 
+                                           name="PaymentDetails.CVV" 
+                                           placeholder="123"
+                                           maxlength="4">
+                                    <span asp-validation-for="PaymentDetails.CVV" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               id="SaveCard" 
+                                               name="PaymentDetails.SaveCard">
+                                        <label class="form-check-label" for="SaveCard">
+                                            Save card for future purchases
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PayPal Details -->
+                        <div id="paypalDetails" class="payment-details-section" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fab fa-paypal me-2"></i>
+                                You will be redirected to PayPal to complete your payment securely.
+                            </div>
+                            <div class="mb-3">
+                                <label for="PayPalEmail" class="form-label">PayPal Email (Optional)</label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="PayPalEmail" 
+                                       name="PaymentDetails.PayPalEmail" 
+                                       placeholder="your-email@example.com">
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Details -->
+                        <div id="bankTransferDetails" class="payment-details-section" style="display: none;">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Bank transfer instructions will be sent to your email after order confirmation.
+                            </div>
+                            <div class="mb-3">
+                                <label for="BankAccount" class="form-label">Your Bank Account (Last 4 digits)</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="BankAccount" 
+                                       name="PaymentDetails.BankAccount" 
+                                       placeholder="****1234"
+                                       maxlength="4">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sticky-note me-2"></i>Order Notes (Optional)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" 
+                                  name="OrderNotes" 
+                                  rows="3" 
+                                  placeholder="Any special instructions for your order...">@Model?.OrderNotes</textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Order Items -->
+                        @if (Model?.CartItems?.Any() == true)
+                        {
+                            <div class="order-items mb-3">
+                                @foreach (var item in Model.CartItems)
+                                {
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <strong>@item.ProductName</strong>
+                                            <small class="text-muted d-block">Qty: @item.Quantity</small>
+                                        </div>
+                                        <span>@((item.Price * item.Quantity).ToString("C"))</span>
+                                    </div>
+                                }
+                            </div>
+                            <hr>
+                        }
+
+                        <!-- Order Totals -->
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong class="text-success fs-5">@Model?.Total.ToString("C")</strong>
+                        </div>
+
+                        <!-- Place Order Button -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-success btn-lg" id="placeOrderBtn">
+                                <i class="fas fa-lock me-2"></i>Place Order
+                            </button>
+                        </div>
+
+                        <!-- Security Badge -->
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Your payment information is secure
+                            </small>
+                        </div>
+
+                        <!-- Back to Cart -->
+                        <div class="text-center mt-3">
+                            <a href="@Url.Action("Index", "Carts")" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Cart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            
+            // Payment method change handler
+            $('input[name="PaymentMethod"]').change(function() {
+                const selectedValue = parseInt($(this).val());
+                @* const paymentMethods = {
+                    0: 'Cash',
+                    1: 'CreditCard', 
+                    2: 'DebitCard',
+                    3: 'PayPal',
+                    4: 'BankTransfer'
+                }; *@
+                
+                // Hide all payment detail sections
+                $('.payment-details-section').hide();
+                $('#paymentDetailsCard').hide();
+                
+                // Clear required attributes
+                $('#paymentDetailsCard input').removeAttr('required');
+                
+                // Show appropriate payment details based on selection
+                if (selectedValue !== 4) { // Not cash
+                    $('#paymentDetailsCard').show();
+                    
+                    if (selectedValue === 1) { // Credit Card
+                        $('#creditCardDetails').show();
+                        $('#CardNumber, #CardHolder, #ExpiryDate, #CVV').attr('required', true);
+                    } else if (selectedValue === 2) { // PayPal
+                        $('#paypalDetails').show();
+                    } else if (selectedValue === 3) { // Bank Transfer
+                        $('#bankTransferDetails').show();
+                    }
+                }
+            });
+            
+            // Trigger change event on page load to show correct payment details
+            $('input[name="PaymentMethod"]:checked').trigger('change');
+            
+            // Card number formatting
+            $('#CardNumber').on('input', function() {
+                let value = $(this).val().replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                $(this).val(formattedValue);
+            });
+            
+            // Expiry date formatting
+            $('#ExpiryDate').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                $(this).val(value);
+            });
+            
+            // CVV validation (numbers only)
+            $('#CVV').on('input', function() {
+                $(this).val($(this).val().replace(/[^0-9]/g, ''));
+            });
+            
+            // Bank account formatting (last 4 digits)
+            $('#BankAccount').on('input', function() {
+                let value = $(this).val().replace(/[^0-9]/g, '');
+                if (value.length > 0) {
+                    value = '****' + value.slice(-4);
+                }
+                $(this).val(value);
+            });
+            
+            // Form submission
+            $('#checkoutForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading state
+                const $submitBtn = $('#placeOrderBtn');
+                const originalText = $submitBtn.html();
+                $submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...').prop('disabled', true);
+                
+                // Validate required fields based on payment method
+                let isValid = true;
+                const selectedPayment = parseInt($('input[name="PaymentMethod"]:checked').val());
+                
+                if (selectedPayment !== 0) { // Not cash
+                    if (selectedPayment === 1 || selectedPayment === 2) { // Credit/Debit Card
+                        const requiredFields = ['#CardNumber', '#CardHolder', '#ExpiryDate', '#CVV'];
+                        requiredFields.forEach(field => {
+                            if (!$(field).val().trim()) {
+                                $(field).addClass('is-invalid');
+                                isValid = false;
+                            } else {
+                                $(field).removeClass('is-invalid');
+                            }
+                        });
+                    }
+                }
+                
+                if (isValid) {
+                    // Submit the form
+                    this.submit();
+                } else {
+                    // Reset button state
+                    $submitBtn.html(originalText).prop('disabled', false);
+                    showAlert('Please fill in all required payment details.', 'danger');
+                }
+            });
+            
+            function showAlert(message, type) {
+                const alert = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                $('.container').prepend(alert);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(function() {
+                    $('.alert').fadeOut();
+                }, 5000);
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .checkout-progress {
+            margin: 2rem 0;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: bold;
+        }
+        
+        .step.completed .step-number {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .step.active .step-number {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .step.active .step-title,
+        .step.completed .step-title {
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .payment-method-option {
+            margin-bottom: 1rem;
+        }
+        
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-option:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        
+        .form-check-input:checked + .form-check-label .payment-option {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+        
+        .payment-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .payment-details {
+            flex: 1;
+        }
+        
+        .order-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .sticky-top {
+            position: -webkit-sticky;
+            position: sticky;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        
+        @@media (max-width: 768px) {
+            .checkout-progress .step-title {
+                font-size: 0.8rem;
+            }
+            
+            .payment-option {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .payment-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+}

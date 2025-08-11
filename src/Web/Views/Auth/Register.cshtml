@@ -1,0 +1,237 @@
+﻿@model Web.Models.Auth.RegisterViewModel;
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-user-plus"></i> Create Account</h3>
+                </div>
+                <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="Register" method="post">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="UserName" class="form-label">
+                                        <i class="fas fa-user"></i> User Name
+                                    </label>
+                                    <input asp-for="UserName" class="form-control" type="text" placeholder="Enter your user name" required />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FullName" class="form-label">
+                                        <i class="fas fa-user"></i> Full Name
+                                    </label>
+                                    <input asp-for="FullName" class="form-control" type="text" placeholder="Enter your full name" required />
+                                    <span asp-validation-for="FullName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email Address
+                            </label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="Enter your email address" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <small class="form-text text-muted">We'll never share your email with anyone else.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="PhoneNumber" class="form-label">
+                                        <i class="fas fa-phone"></i> Phone Number
+                                    </label>
+                                    <input asp-for="PhoneNumber" class="form-control" type="tel" placeholder="Enter your phone number" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mp-3">
+                                    <label asp-for="Age" class="form-label">Age</label>
+                                    <input asp-for="Age" class="form-control" />
+                                    <span asp-validation-for="Age" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label asp-for="Address.Street" class="form-label"></label>
+                                    <input asp-for="Address.Street" class="form-control" />
+                                    <span asp-validation-for="Address.Street" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label asp-for="Address.District" class="form-label"></label>
+                                    <input asp-for="Address.District" class="form-control" />
+                                    <span asp-validation-for="Address.District" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label asp-for="Address.City" class="form-label"></label>
+                                    <input asp-for="Address.City" class="form-control" />
+                                    <span asp-validation-for="Address.City" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label asp-for="Address.ZipCode" class="form-label"></label>
+                                    <input asp-for="Address.ZipCode" class="form-control" />
+                                    <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Password" class="form-label">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input asp-for="Password" class="form-control" type="password" placeholder="Create a password" required />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Password must be at least 6 characters long and contain letters and numbers.
+                            </small>
+                        </div>
+
+                        @* <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="AgreeToTerms" class="form-check-input" type="checkbox" required />
+                                <label asp-for="AgreeToTerms" class="form-check-label">
+                                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                                </label>
+                                <span asp-validation-for="AgreeToTerms" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="SubscribeToNewsletter" class="form-check-input" type="checkbox" />
+                                <label asp-for="SubscribeToNewsletter" class="form-check-label">
+                                    Subscribe to our newsletter for updates and promotions
+                                </label>
+                            </div>
+                        </div> *@
+
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account? 
+                            <a asp-action="Login" class="text-decoration-none fw-bold">
+                                <i class="fas fa-sign-in-alt"></i> Sign in here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        $(document).ready(function() {
+            // Password strength indicator
+            $('#Password').on('input', function() {
+                var password = $(this).val();
+                var strength = checkPasswordStrength(password);
+                updatePasswordStrength(strength);
+            });
+
+            // Confirm password matching
+            $('#ConfirmPassword').on('input', function() {
+                var password = $('#Password').val();
+                var confirmPassword = $(this).val();
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    $(this).addClass('is-invalid');
+                    $(this).next('.text-danger').text('Passwords do not match');
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.text-danger').text('');
+                }
+            });
+
+            function checkPasswordStrength(password) {
+                var score = 0;
+                if (password.length >= 8) score += 1;
+                if (/[a-z]/.test(password)) score += 1;
+                if (/[A-Z]/.test(password)) score += 1;
+                if (/[0-9]/.test(password)) score += 1;
+                if (/[^A-Za-z0-9]/.test(password)) score += 1;
+                
+                if (score < 3) return 'weak';
+                if (score < 4) return 'medium';
+                return 'strong';
+            }
+
+            function updatePasswordStrength(strength) {
+                var $indicator = $('#password-strength');
+                if ($indicator.length === 0) {
+                    $indicator = $('<div id="password-strength" class="mt-1"></div>');
+                    $('#Password').after($indicator);
+                }
+                
+                var strengthClasses = {
+                    'weak': 'text-danger',
+                    'medium': 'text-warning', 
+                    'strong': 'text-success'
+                };
+                
+                $indicator.removeClass('text-danger text-warning text-success')
+                          .addClass(strengthClasses[strength])
+                          .text('Password strength: ' + strength);
+            }
+
+            // Form validation enhancement
+            $('.form-control').on('focus', function() {
+                $(this).parent().addClass('focused');
+            }).on('blur', function() {
+                if (!$(this).val()) {
+                    $(this).parent().removeClass('focused');
+                }
+            });
+        });
+    </script>
+}
