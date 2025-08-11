@@ -13,6 +13,6 @@ An online marketplace that facilitates the buying and selling of products, incor
 ## Technologies Used:
 - Backend: ASP.NET Core, Entity Framework Core.
 - Database: SQL Server.
-- Frontend: HTML, CSS, Bootstrap.
+- Frontend: HTML, CSS, JavaScript, Bootstrap.
 
 
