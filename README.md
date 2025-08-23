@@ -77,6 +77,7 @@ Entities are modeled as aggregates and follow normalized design:
 ## Technology Stack
 
 - **Backend**: ASP.NET Core MVC
+- **Frontend**: HTML, CSS, Bootstrap, JavaScript, jQuery & Ajax
 - **Database**: EF Core (Code-First) with SQL Server
 - **Authentication**: ASP.NET Identity + Cookies
 - **Architecture**: Clean Architecture
